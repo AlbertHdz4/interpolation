@@ -6,6 +6,8 @@ import numpy                as np
 import sympy                as sym
 import time
 
+from colors             import bcolors
+
 
 def lagrange_poly (x_i, f_i) :
     """
@@ -13,6 +15,7 @@ def lagrange_poly (x_i, f_i) :
     
     x_i     : entradas de la funcion, puntos x
     f_i     : salidas de la funcion a interpolar
+    return  : regresamos el polinomio de Lagrange
     """
     initial_time = time.time()
     
@@ -26,15 +29,12 @@ def lagrange_poly (x_i, f_i) :
     for i in range(0, n):
         numerator   = 1
         denominator = 1
-        for j  in range(0, n):
-            if (j != i):
-                numerator *= (x - x_i[j])
-                denominator *= (x_i[i] - x_i[j])
-        lagrangian_term = numerator/denominator
-
-        lagrange_poly += lagrangian_term * f_i[i]
-
-    expand_lagrange_poly = lagrange_poly.expand()
+        for j in range(0,n):
+            if(i!=j):
+                numerator = numerator * (x - x_i[j])
+                denominator = denominator * (x_i[i] - x_i[j])
+            lagrangian_term = (numerator/denominator) * f_i[i]
+        lagrange_poly = lagrange_poly + lagrangian_term
 
 
     """ Con ayuda de sympy se expande el polinomio 
@@ -42,17 +42,21 @@ def lagrange_poly (x_i, f_i) :
     sympy.expand((x + y)**2) = x**2 +2*x*y + y**2 y
     lambdify es para evaluar todos los puntos de 
     nuestro dominio en el polinomio de Lagrange """
-    simbolic_poly = sym.lambdify(x, expand_lagrange_poly)
+    simbolic_poly = sym.lambdify(x, lagrange_poly)
 
 
     """ Evaluamos los x_i en el polinomio"""
-    lagrange_poly_f_i = simbolic_poly(x_i)
+    x_min_new   = np.min(x_i)
+    x_max_new   = np.max(x_i)
+    p_x_i       = np.linspace(x_min_new, x_max_new, n)
+    lagrange_poly_f_i = simbolic_poly(p_x_i)
 
 
     """ Obtenemos los tiempos finales que tardo el algoritmo """
     final_time  = time.time()
     diff        = final_time - initial_time
-    print('Polinomio de Lagrange: El tiempo que tardo en solucionar el problema con ', n, ' puntos fue de ', diff, ' segundos')
+    print(f"{bcolors.WARNING}"'Polinomio de Lagrange: El tiempo que tardo en solucionar el problema con ', n, ' puntos fue de ', diff, ' segundos')
+
 
     """ Graficamos el polinomio de Lagrange """
     plt.figure('Interpolación Lagrange')
@@ -60,7 +64,8 @@ def lagrange_poly (x_i, f_i) :
     plt.xlabel('x')
     plt.ylabel('f(x)')
     plt.plot(x_i, f_i, 'o', color = 'red', label = 'Puntos de la muestra')
-    plt.plot(x_i, lagrange_poly_f_i, label = 'Polinomio de Lagrange')
+    plt.plot(p_x_i, lagrange_poly_f_i, label = 'Polinomio de Lagrange')
     plt.legend()
     plt.show()
+
     return lagrange_poly

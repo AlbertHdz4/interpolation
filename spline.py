@@ -22,6 +22,8 @@ def linear_spline (x_i, f_i) :
     Se deben de sumar polinomio de la forma, 
     Pi(x) = ax + b
     """
+    initial_time = time.time()
+
     n = len(x_i) # Longitud de nuestro espacio
     x = sym.Symbol('x') # Indicamos que la variable x es simbolica y sera evaluada en los polinomios
 
@@ -53,7 +55,10 @@ def linear_spline (x_i, f_i) :
         poly_y_i = poly_x_i(sub_dom) # Evaluando el polinomio
         x_dom = np.concatenate((x_dom, sub_dom))
         y_range = np.concatenate((y_range, poly_y_i))
-        
+    
+    final_time  = time.time()
+    diff        = final_time - initial_time
+    print(f"{bcolors.WARNING}" 'Spline lineal: El tiempo que tardo en solucionar el problema con ', n, ' puntos fue de ', diff, ' segundos')
 
     """ Graficamos spline lineal """
     plt.figure('Spline lineal')
@@ -83,6 +88,7 @@ def get_cubic_spline (x_i, f_i):
 
     # print("Coefficients: ", coefficients)
 
+    """ Wrapper parra obtener el spline """
     def spline(val):
         idx = min(bisect.bisect(x_i, val) - 1, n - 2)
         z = (val - x_i[idx]) / h_i[idx]
@@ -94,7 +100,7 @@ def get_cubic_spline (x_i, f_i):
     """ Obtenemos los tiempos finales que tardo el algoritmo """
     final_time  = time.time()
     diff        = final_time - initial_time
-    print('Spline cubico: El tiempo que tardo en solucionar el problema con ', n, ' puntos fue de ', diff, ' segundos')
+    print(f"{bcolors.WARNING}"'Spline cubico: El tiempo que tardo en solucionar el problema con ', n, ' puntos fue de ', diff, ' segundos')
 
     """ Graficamos spline cubico """
     plt.figure('Spline cubico')

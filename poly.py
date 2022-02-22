@@ -53,19 +53,24 @@ def poly (x_i, f_i) :
         sympy.expand((x + y)**2) = x**2 +2*x*y + y**2 y
         lambdify es para evaluar todos los puntos de 
         nuestro dominio en el polinomio de Lagrange """
-    expanded_interpol_poly = sym.lambdify(x, poly.expand())
+    expanded_interpol_poly = sym.lambdify(x, poly)
+
+    """ Imprimimos el polinomio """
+    # print('Polinomio de interpolación: ')
+    # sym.pprint(interpol_poly_i)
+
+    x_max_new = np.max(x_i)
+    x_min_new = np.min(x_i)
+    new_x_i   = np.linspace(x_min_new, x_max_new, n)
 
     """ Evaluamos nuestra expresion del polinomio 
-        en cada punto de nuestras x_i """
-    interpol_poly_i = expanded_interpol_poly(x_i)
+            en cada punto de nuestras x_i """
+    interpol_poly_i = expanded_interpol_poly(new_x_i)
 
     final_time  = time.time()
     diff        = final_time - initial_time
     print(f"{bcolors.WARNING}" 'Polinomio de interpolacion: El tiempo que tardo en solucionar el problema con ', n, ' puntos fue de ', diff, ' segundos')
 
-    """ Imprimimos el polinomio """
-    # print('Polinomio de interpolación: ')
-    # sym.pprint(expanded_interpol_poly)
 
     """ Grafica - Polinomio de interpolación """
     plt.figure('Polinomio de interpolación')
@@ -73,7 +78,7 @@ def poly (x_i, f_i) :
     plt.xlabel('x')
     plt.ylabel('f(x)')
     plt.plot(x_i, f_i, 'o', color = 'red', label = 'Datos de la muestra')
-    plt.plot(x_i, interpol_poly_i, label = poly)
+    plt.plot(new_x_i, interpol_poly_i, label = poly)
     plt.legend()
     plt.show()
 
