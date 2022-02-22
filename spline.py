@@ -9,7 +9,8 @@ import bisect
 import math
 import time
 
-from colors import bcolors
+from gauss_elimination  import gauss_elimination
+from colors             import bcolors
 
 
 # Spline lineal para la interpolacion de funciones 1D
@@ -72,105 +73,109 @@ def linear_spline (x_i, f_i) :
     return poly_i
     
 
-# Spline cubico para interpolacion de funciones de 1D
-def get_cubic_spline (x_i, f_i):
-    initial_time = time.time()
+def get_cubic_spline (x_i, f_i) :
+    """
+    Interpola funciones 1D usando un spline cubico
+    x_i : Coordenadas x a ser evaluadas en f(x) y a ser interpolados 
+    f_i : Valores o salidas de la funcion
 
-    n       = len(x_i) # Obtenemos la longitud de nuestros datos
-    h_i     = get_h_diff(x_i) # obtenemos los cambios para obtener la 
-    A, B, C = create_tridiagonal_matrix(n, h_i) # creamos la matriz triagonal
-    D       = get_d_values(n, h_i, f_i) # obtenemos los dj valores para obtener las soluciones de la matriz tridiagonal
-    M       = triadiagonal_matrix_solution(A, B, C, D) # obtenemos las soluciones de la matriz
+    Se deben de sumar polinomio de la forma, 
+    Pi(x) = ax**3 + bx**2 + cx + d
+    """
+    n = len(x_i)
 
-    coefficients = [[(M[i + 1] - M[i]) * h_i[i] * h_i[i] / 6, M[i] * h_i[i] * h_i[i] / 2,\
-                    (f_i[i + 1] - f_i[i] - (M[i + 1] + 2 * M[i]) * h_i[i] * h_i[i] / 6),\
-                    f_i[i]] for i in range(n-1)]
+    # Creamos la matriz h
+    h = np.zeros(n - 1, float)
 
-    # print("Coefficients: ", coefficients)
-
-    """ Wrapper parra obtener el spline """
-    def spline(val):
-        idx = min(bisect.bisect(x_i, val) - 1, n - 2)
-        z = (val - x_i[idx]) / h_i[idx]
-        C = coefficients[idx]
-        return (((C[0] * z) + C[1]) * z + C[2]) * z + C[3]
-
-    cubic_spline_y  = [spline(y) for y in x_i]
+    # Formamos la matriz h
+    for j in range(0, n - 1) :
+        h[j] = x_i[j+1] - x_i[j]
     
-    """ Obtenemos los tiempos finales que tardo el algoritmo """
-    final_time  = time.time()
-    diff        = final_time - initial_time
-    print(f"{bcolors.WARNING}"'Spline cubico: El tiempo que tardo en solucionar el problema con ', n, ' puntos fue de ', diff, ' segundos')
+    # Declaramos las matrices que resolveremos por gauss
+    A = np.zeros((n - 2, n - 2), float)
+    B = np.zeros(n - 2, float)
+    S = np.zeros(n, float)
+    
+    # Asignamos los primeros elementos
+    A[0, 0] = 2 * (h[0] + h[1])
+    A[0, 1] = h[1]
+    B[0]    = 6 * ((f_i[2] - f_i[1]) / h[1] - (f_i[1] - f_i[0]) / h[0])
 
-    """ Graficamos spline cubico """
-    plt.figure('Spline cubico')
+    # Empezamos a formar las matrices
+    for i in range(1, n-3):
+        A[i, i - 1] = h[i]
+        A[i, i]     = 2 * (h[i] + h[i + 1])
+        A[i, i + 1] = h[i + 1]
+        factor_2_1  = (f_i[i + 2] - f_i[i + 1]) / h[i + 1]
+        factor_1_0  = (f_i[i + 1] - f_i[i]) / h[i]
+        B[i]        = 6 * (factor_2_1 - factor_1_0)
+        
+    A[n - 3, n - 4] = h[n - 3]
+    A[n - 3, n - 3] = 2 * (h[n - 3] + h[n - 2])
+    factor_1_2  = (f_i[n - 1] - f_i[n - 2]) / h[n - 2]
+    factor_2_3  = (f_i[n - 2] - f_i[n - 3]) / h[n - 3]
+    B[n - 3]    = 6 * (factor_1_2 - factor_2_3)
+    
+    solutions = np.linalg.solve(A, B)
+
+    for j in range(1, n - 1) :
+        S[j] = solutions[j - 1]
+
+    S[0]        = 0
+    S[n - 1]    = 0
+    
+
+    a_c = np.zeros(n-1, dtype = float)
+    b = np.zeros(n-1, dtype = float)
+    c = np.zeros(n-1, dtype = float)
+    d = np.zeros(n-1, dtype = float)
+
+    for j in range(0, n - 1) :
+        a_c[j]  = (S[j + 1] - S[j]) / (6 * h[j])
+        b[j]    = S[j] / 2
+        factor_1_0 = (f_i[j + 1] - f_i[j]) / h[j]
+        c[j] = factor_1_0 - (2 * h[j] * S[j] + h[j] * S[j + 1]) / 6
+        d[j] = f_i[j]
+    
+    """ Indicamos que el x sera simbolica y la evaluaremos posteriormente"""
+    x = sym.Symbol('x')
+    
+    all_cubic_polys = []
+
+    for j in range(0,n-1,1):
+        cubic_poly = a_c[j] * (x - x_i[j]) ** 3 + b[j] * (x - x_i[j]) ** 2
+        cubic_poly = cubic_poly + c[j] * (x - x_i[j]) + d[j]
+        
+        cubic_poly = cubic_poly.expand()
+        all_cubic_polys.append(cubic_poly)
+            
+    """Graficamos los polinomios cubicos con sus respectivos dominios """
+    x_poly_i    = np.array([])
+    y_poly_i    = np.array([])
+    step        = 1
+
+    while not(step >= n):
+        x_temp_i = x_i[step - 1]
+        y_temp_i = x_i[step]
+        x_temp   = np.linspace(x_temp_i, y_temp_i, n)
+
+        # evalua polinomio del tramo
+        cubic_poly_i = all_cubic_polys[step - 1]
+        cubic_poly_t = sym.lambdify('x', cubic_poly_i) 
+        f_i_t = cubic_poly_t(x_temp)
+
+        # vectores de trazador en x,y
+        x_poly_i = np.concatenate((x_poly_i, x_temp))
+        y_poly_i = np.concatenate((y_poly_i, f_i_t))
+        step = step + 1
+
+    """ Grafiamos los polinomios cubicos """
+    plt.plot(x_i, f_i, 'o', color = 'red', label = 'Puntos a ajustarr')
+    plt.plot(x_poly_i, y_poly_i, label = 'Spline cubico')
     plt.title('Spline cubico')
     plt.xlabel('x')
     plt.ylabel('f(x)')
-    plt.plot(x_i, f_i, 'o', color = 'red', label = 'Puntos de la muestra')
-    plt.plot(x_i, cubic_spline_y, label = 'Spline cubico')
     plt.legend()
     plt.show()
-    return spline
 
-
-def create_tridiagonal_matrix (n, h) :
-    """
-    Interpola funciones 1D usando un spline cubico
-    x_i     : Coordenadas x a ser evaluadas en f(x) y a ser interpolados 
-    f_i     : Valores o salidas de la funcion
-    spline  : Regresa los valores evaluados del spline cubico
-    """
-    A = np.zeros(n - 1)
-    B = np.zeros(n)
-    C = np.zeros(n - 1)
-
-    for i in range(n - 2) : 
-        A[i] = h[i] / (h[i] + h[i + 1])
-
-    A[n - 2] = 0
-    
-    for j in range(n) : 
-        B[j] = 2 
-   
-    C = [0] + [h[i + 1] / (h[i] + h[i + 1]) for i in range(n - 2)]
-    return A, B, C
-
-
-# Obtenemos las h[j] = x[j + 1] - x[j] de todos lo datos 
-def get_h_diff (x) :
-    h = np.zeros(len(x))
-    for i in range(len(x) - 1) :
-        h[i] = x[i + 1] - x[i]
-    return h
-
-
-# Obtenemos los d[j] valores
-# d = d[0] + sum(6((y[j + 1] - y[j]/ h[i]) - (y[j] - y[i - 1])/h[j - 1]) / h[j] + h[j - 1]) + d[n]
-# donde d[0] = d[n] = 0 
-def get_d_values (n, h, y) :
-    return [0] + [6 * ((y[i + 1] - y[i]) / h[i] - (y[i] - y[i - 1]) / h[i - 1]) / (h[i] + h[i-1]) for i in range(1, n - 1)] + [0]
-
-
-## Obtenemos las soluciones de la matriz triadiagonal
-def triadiagonal_matrix_solution (A, B, C, D):
-    c_p = C + [0]
-    d_p = np.zeros(len(B), float)
-    X   = np.zeros(len(B), float)
-
-    c_p[0] = C[0] / B[0]
-    d_p[0] = D[0] / B[0]
-
-    for i in range(1, len(B)):
-        c_p[i] = c_p[i] / (B[i] - c_p[i - 1] * A[i - 1])
-        d_p[i] = (D[i] - d_p[i - 1] * A[i - 1]) / (B[i] - c_p[i - 1] * A[i - 1])
-
-    # Realizamos la solucion hacia atras, de la ultima variable
-    X[-1] = d_p[-1] # Primer elemento de la solucion
-
-    # Vamos solucionando el sistema de adelante hacia atras
-    for i in range(len(B) - 2, -1, -1):
-        X[i] = d_p[i] - c_p[i] * X[i + 1]
-    
-    
-    return X
+    return(all_cubic_polys)

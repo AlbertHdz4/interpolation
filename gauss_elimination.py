@@ -1,9 +1,13 @@
 """ Author: Alberto Hernández López """
 ''' Eliminación Gaussiana con pivoteo parcial '''
 
-from    numpy           import * # Para manejar matrices 
+from numpy import * # Para manejar matrices 
 
-
+""""
+Esencialmente este código fue la primera versión de mi tarea 1
+sin embargo, tuve algunos problemas con la integración con la 
+tarea 1 así que, decidí dejarlo con su versión 1.
+"""
 # Metodo de eliminacion gaussiana
 def gauss_elimination (a, b, exercise_number = "NA") :
     n = len(b)
@@ -25,8 +29,7 @@ def gauss_elimination (a, b, exercise_number = "NA") :
             for j in range(k, n):
                 a[i,j] = a[k, j] - a[i, j] * factor
             b[i] = b[k] - b[i] * factor
-    print(a)
-    print(b)
+            
 
     x[n - 1] = b[n - 1] / a[n - 1, n - 1]
     for i in range(n - 2, -1, -1):
@@ -37,6 +40,5 @@ def gauss_elimination (a, b, exercise_number = "NA") :
             
         x[i] = (b[i] - sum_ax) / a[i, i]
 
-    print("La solucion es de la matriz es:")
-    print(x)
+    print("La solucion es \n:", x)
     return x

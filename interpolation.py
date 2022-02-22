@@ -35,21 +35,21 @@ def space_gen(x_min, x_max, samples):
 if __name__ == '__main__':
     print(f"{bcolors.OKCYAN}******************** START ********************{bcolors.ENDC}")
 
-    samples = 64 # 16, 32, 64 # Definimos los numeros de puntos deseados
+    samples = 16 # 16, 32, 64 # Definimos los numeros de puntos deseados
 
 
     print(f"{bcolors.OKGREEN}******************** PRIMERA PARTE A) ********************{bcolors.ENDC}")
     """ Interpolación con espaciamiento 
         regular e irregular de 16, 32, 64 puntos """
     # (x_i, step) = np.linspace(0, 360, samples, retstep = True) # Espaciamiento regular de 0 - 2*Pi
-    (x_i, step) = np.linspace(0, 1, samples, dtype = float, retstep = True) # Espaciamiento regular de 0 - 1
-    # x_i = space_gen(0, 2 * np.pi, samples) # Espaciamiento aleatorio de 0 - 2*Pi 
+    # (x_i, step) = np.linspace(0, 1, samples, dtype = float, retstep = True) # Espaciamiento regular de 0 - 1
+    x_i = space_gen(0, 2 * np.pi, samples) # Espaciamiento aleatorio de 0 - 2*Pi 
     # x_i = space_gen(0, 1, samples) # Espaciamiento aleatorio de 0 - 1
 
 
     """ Funcion f(x) """
-    # f_i = 2 * np.cos(x_i) + np.sin(x_i) + np.sqrt(x_i)
-    f_i = 2 * np.cos(2 * np.pi * x_i) + np.sin(2 * np.pi * x_i) + np.sqrt(2 * np.pi * x_i)
+    f_i = 2 * np.cos(x_i) + np.sin(x_i) + np.sqrt(x_i)
+    # f_i = 2 * np.cos(2 * np.pi * x_i) + np.sin(2 * np.pi * x_i) + np.sqrt(2 * np.pi * x_i)
 
     
     """ Grafica - puntos a ajustar ------------------------------------------"""
@@ -59,9 +59,11 @@ if __name__ == '__main__':
     plt.xlabel('x')
     plt.xlabel('y')
     plt.plot(x_i, f_i, 'x', color = "purple") 
-    # plt.show()
+    plt.show()
     """ ---------------------------------------------------------------------- """
 
+    """ Si deseas probar, tienes que descomentar un dominio, un rango y el metodo
+        de interpolacion o spline que desees, todo esta seccionado por metodo """
 
     """ Polinomio de interpolacion -------------- """
     # dom_interpol_poly       = np.linspace(0, 360, samples) # Dominio regular de 0 - 2 * Pi
@@ -89,11 +91,11 @@ if __name__ == '__main__':
     """ Spline lineal ------------------------------------------------ """
     # dom_linear_spline     = np.linspace(0, 360, samples) # Dominio regular de 0 - 2*Pi
     # dom_linear_spline     = np.linspace(0, 1, samples, dtype = float) # Espaciamiento regular de 0 - 1
-    # dom_linear_spline     = space_gen(0, 360, samples) # Dominio con espaciamiento aleatorio de 0 - 2*Pi
+    dom_linear_spline     = space_gen(0, 360, samples) # Dominio con espaciamiento aleatorio de 0 - 2*Pi
     # dom_linear_spline     = space_gen(0, 1, samples) # Dominio con espaciamiento aleatorio de 0 - 1
-    # range_linear_spline   = 2 * np.cos(dom_linear_spline) + np.sin(dom_linear_spline) + np.sqrt(dom_linear_spline) # Funcion a aproximar
+    range_linear_spline   = 2 * np.cos(dom_linear_spline) + np.sin(dom_linear_spline) + np.sqrt(dom_linear_spline) # Funcion a aproximar
     # range_linear_spline   = 2 * np.cos(2 * np.pi * dom_linear_spline) + np.sin(2 * np.pi * dom_linear_spline) + np.sqrt(2 * np.pi * dom_linear_spline) # Otra funcion a aproximar
-    # linear_poly = linear_spline(dom_linear_spline, range_linear_spline)
+    linear_poly = linear_spline(dom_linear_spline, range_linear_spline)
     """ ---------------------------------------------------------------------- """
 
 
@@ -101,10 +103,10 @@ if __name__ == '__main__':
     # dom_cubic_spline  = np.linspace(0, 360, samples) # Dominio regular de 0 - 2*Pi
     # dom_cubic_spline  = np.linspace(0, 1, samples, dtype = float) # Espaciamiento regular de 0 - 1
     # dom_cubic_spline  = space_gen(0, 360, samples) # Dominio con espaciamiento aleatorio de 0 - 2*Pi
-    dom_cubic_spline    = space_gen(0, 1, samples) # Dominio con espaciamiento aleatorio de 0 - 1
-    range_cubic_spline  = 2 * np.cos(dom_cubic_spline) + np.sin(dom_cubic_spline) + np.sqrt(dom_cubic_spline) # Funcion a aproximar
+    # dom_cubic_spline    = space_gen(0, 1, samples) # Dominio con espaciamiento aleatorio de 0 - 1
+    # range_cubic_spline  = 2 * np.cos(dom_cubic_spline) + np.sin(dom_cubic_spline) + np.sqrt(dom_cubic_spline) # Funcion a aproximar
     # range_cubic_spline  = 2 * np.cos(2 * np.pi * dom_cubic_spline) + np.sin(2 * np.pi * dom_cubic_spline) + np.sqrt(2 * np.pi * dom_cubic_spline) # Otra funcion a aproximar
-    cubic_spline        = get_cubic_spline(dom_cubic_spline, range_cubic_spline)
+    # cubic_spline        = get_cubic_spline(dom_cubic_spline, range_cubic_spline)
     """ ---------------------------------------------------------------------- """
     ## ----------------------------------------------------------------------
     print(f"{bcolors.OKCYAN}\n******************** END ********************{bcolors.ENDC}")
