@@ -6,7 +6,7 @@ from numpy import * # Para manejar matrices
 """"
 Esencialmente este código fue la primera versión de mi tarea 1
 sin embargo, tuve algunos problemas con la integración con la 
-tarea 1 así que, decidí dejarlo con su versión 1.
+tarea 1 así que, decidí dejarlo con su versión original.
 """
 # Metodo de eliminacion gaussiana
 def gauss_elimination (a, b, exercise_number = "NA") :
@@ -29,7 +29,7 @@ def gauss_elimination (a, b, exercise_number = "NA") :
             for j in range(k, n):
                 a[i,j] = a[k, j] - a[i, j] * factor
             b[i] = b[k] - b[i] * factor
-            
+
 
     x[n - 1] = b[n - 1] / a[n - 1, n - 1]
     for i in range(n - 2, -1, -1):

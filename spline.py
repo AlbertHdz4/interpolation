@@ -116,7 +116,11 @@ def get_cubic_spline (x_i, f_i) :
     factor_2_3  = (f_i[n - 2] - f_i[n - 3]) / h[n - 3]
     B[n - 3]    = 6 * (factor_1_2 - factor_2_3)
     
-    solutions = np.linalg.solve(A, B)
+    solutions = gauss_elimination(A, B)
+    
+    # Soluciones con linalg solo para comprobar que los resultados de
+    # gauss_elimination sean correctos
+    solutions = np.linalg.solve(A, B) 
 
     for j in range(1, n - 1) :
         S[j] = solutions[j - 1]

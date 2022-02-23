@@ -33,8 +33,9 @@ def poly (x_i, f_i) :
 
 
     # Realizamos eliminacion de Gauss - diagonalizacion
-    # coefficient = gauss_elimination(V, f_i)
-    coefficient = np.linalg.solve(V, f_i)
+    coefficient = gauss_elimination(V, f_i)
+    # print(coefficient)
+    coefficient = np.linalg.solve(V, f_i) # Solo para comprobar las soluciones de gauss_elimination
     # print(coefficient)
 
     # Usamos Symbol para indicar

@@ -66,13 +66,13 @@ if __name__ == '__main__':
         de interpolacion o spline que desees, todo esta seccionado por metodo """
 
     """ Polinomio de interpolacion -------------- """
-    # dom_interpol_poly       = np.linspace(0, 360, samples) # Dominio regular de 0 - 2 * Pi
+    dom_interpol_poly       = np.linspace(0, 360, samples) # Dominio regular de 0 - 2 * Pi
     # dom_interpol_poly     = np.linspace(0, 1, samples, dtype = float) # Espaciamiento regular de 0 - 1
     # dom_interpol_poly     = space_gen(0, 360, samples) # Dominio con espaciamiento aleatorio de 0 - 2 * Pi
     # dom_interpol_poly     = space_gen(0, 1, samples) # Dominio con espaciamiento aleatorio de 0 - 1
-    # range_interpol_poly     = 2 * np.cos(dom_interpol_poly) + np.sin(dom_interpol_poly) + np.sqrt(dom_interpol_poly) # Funcion a aproximar
+    range_interpol_poly     = 2 * np.cos(dom_interpol_poly) + np.sin(dom_interpol_poly) + np.sqrt(dom_interpol_poly) # Funcion a aproximar
     # range_interpol_poly   = 2 * np.cos(2 * np.pi * dom_interpol_poly) + np.sin(2 * np.pi * dom_interpol_poly) + np.sqrt(2 * np.pi * dom_interpol_poly) # Otra funcion a aproximar
-    # inter_poly          = poly(dom_interpol_poly, range_interpol_poly)   
+    inter_poly          = poly(dom_interpol_poly, range_interpol_poly)   
     """ ---------------------------------------------------------------------- """
 
 
